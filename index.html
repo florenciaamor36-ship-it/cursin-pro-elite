@@ -15,8 +15,8 @@
         :root { --brand: #ff0000; --brand-dark: #cc0000; --gold: #ffd700; --bg: #050505; --surface: #121212; --border: rgba(255,255,255,0.08); --text: #ffffff; --text-dim: #a0a0a0; --radius: 12px; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.4; }
-        #status-overlay { position: fixed !important; inset: 0 !important; background: #050505 !important; z-index: 1000000 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; text-align: center !important; }
-        .spin { width: 50px !important; height: 50px !important; border: 5px solid #222 !important; border-top-color: #ff0000 !important; border-radius: 50% !important; animation: r 0.8s linear infinite !important; margin-bottom: 20px !important; }
+        
+        
         @keyframes r { to { transform: rotate(360deg); } }
         nav { height: 70px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
         .nav-logo { font-family: 'Montserrat'; font-weight: 900; font-size: 1.1rem; flex: 1; text-align: center; cursor: pointer; }
@@ -56,7 +56,7 @@
     </style>
 </head>
 <body>
-    <div id="status-overlay"><div class="spin"></div><p style="font-family:Montserrat; font-weight:900; color:#ff0000; letter-spacing:2px; font-size:0.8rem; margin:0;">SINCRONIZANDO ACADEMIA...</p></div>
+    
     <div id="overlay" onclick="toggleMenu()"></div>
     <div id="sidebar">
         <div class="close" onclick="toggleMenu()">×</div>
@@ -84,7 +84,7 @@
         function toggleMenu() { const s = document.getElementById('sidebar'), o = document.getElementById('overlay'); s.classList.toggle('active'); o.style.display = s.classList.contains('active') ? 'block' : 'none'; }
         function setCat(c) { aP = ''; aC = c; page = 1; load(); toggleMenu(); }
         function setPlat(p) { aC = ''; aP = p; page = 1; load(); toggleMenu(); }
-        async function load() { document.getElementById("status-overlay").style.display = "none";
+        async function load() { 
             const grid = document.getElementById('grid'), overlay = document.getElementById('status-overlay');
             overlay.style.display = 'flex';
             try {
