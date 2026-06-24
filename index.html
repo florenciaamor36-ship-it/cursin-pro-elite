@@ -15,8 +15,8 @@
         :root { --brand: #ff0000; --brand-dark: #cc0000; --gold: #ffd700; --bg: #050505; --surface: #121212; --border: rgba(255,255,255,0.08); --text: #ffffff; --text-dim: #a0a0a0; --radius: 12px; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.4; }
-        
-        
+        #status-overlay { position: fixed !important; inset: 0 !important; background: #050505 !important; z-index: 1000000 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; text-align: center !important; }
+        .spin { width: 50px !important; height: 50px !important; border: 5px solid #222 !important; border-top-color: #ff0000 !important; border-radius: 50% !important; animation: r 0.8s linear infinite !important; margin-bottom: 20px !important; }
         @keyframes r { to { transform: rotate(360deg); } }
         nav { height: 70px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
         .nav-logo { font-family: 'Montserrat'; font-weight: 900; font-size: 1.1rem; flex: 1; text-align: center; cursor: pointer; }
@@ -56,7 +56,7 @@
     </style>
 </head>
 <body>
-    
+    <div id="status-overlay"><div class="spin"></div><p style="font-family:Montserrat; font-weight:900; color:#ff0000; letter-spacing:2px; font-size:0.8rem; margin:0;">SINCRONIZANDO ACADEMIA...</p></div>
     <div id="overlay" onclick="toggleMenu()"></div>
     <div id="sidebar">
         <div class="close" onclick="toggleMenu()">×</div>
@@ -84,28 +84,20 @@
         function toggleMenu() { const s = document.getElementById('sidebar'), o = document.getElementById('overlay'); s.classList.toggle('active'); o.style.display = s.classList.contains('active') ? 'block' : 'none'; }
         function setCat(c) { aP = ''; aC = c; page = 1; load(); toggleMenu(); }
         function setPlat(p) { aC = ''; aP = p; page = 1; load(); toggleMenu(); }
-        async function load() { document.getElementById("status-overlay").style.display = "flex"; 
+        async function load() {
             const grid = document.getElementById('grid'), overlay = document.getElementById('status-overlay');
             overlay.style.display = 'flex';
+            let url = `${S_URL}cursos?select=*&limit=${limit}&offset=${(page-1)*limit}&order=titulo.asc`;
+            if(aP) url += `&plataforma=ilike.*${aP}*`;
+            const query = document.getElementById('q').value.trim();
+            let term = query || aC;
+            if(term) url += `&or=(titulo.ilike.*${encodeURIComponent(term)}*,descripcion.ilike.*${encodeURIComponent(term)}*)`;
             try {
-                const res = await fetch('courses.json');
-                const allData = await res.json();
-                
-                let data = allData;
-                const query = document.getElementById('q').value.trim().toLowerCase();
-                if (query || aC || aP) {
-                    data = allData.filter(c => {
-                        const t = c.titulo.toLowerCase(), d = (c.descripcion || '').toLowerCase(), p = c.plataforma.toLowerCase();
-                        const matchQuery = !query || t.includes(query) || d.includes(query);
-                        const matchCat = !aC || t.includes(aC.toLowerCase()) || d.includes(aC.toLowerCase());
-                        const matchPlat = !aP || p.includes(aP.toLowerCase());
-                        return matchQuery && matchCat && matchPlat;
-                    });
-                }
-                totalItems = data.length;
-                const paginatedData = data.slice((page-1)*limit, page*limit);
+                const res = await fetch(url, { headers: { ...headers, 'Prefer': 'count=exact' } });
+                const data = await res.json();
+                const cr = res.headers.get('content-range'); if(cr) totalItems = parseInt(cr.split('/')[1]);
                 grid.innerHTML = '';
-                paginatedData.forEach(c => {
+                data.forEach(c => {
                     const isYT = c.plataforma.toLowerCase().includes('youtube');
                     const img = isYT ? 'https://raw.githubusercontent.com/florenciaamor36-ship-it/cursin-v2-oficial/main/youtube_fallback.jpg' : (c.imagen_url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600');
                     let logo = 'https://cdn-icons-png.flaticon.com/512/3429/3429141.png';
@@ -114,7 +106,7 @@
                     grid.innerHTML += `<a class="card" href="${c.url}" target="_blank"><div class="c-img"><img class="main" src="${img}"><div class="c-logo"><img src="${logo}"></div></div><div class="c-body"><h3>${c.titulo}</h3><p class="c-desc">${d || 'Certificación oficial.'}</p><div class="c-plat">${c.plataforma}</div><div class="btn-go">Ir al Curso</div></div></a>`;
                 });
                 renderPagi();
-            } catch (e) { console.error(e); grid.innerHTML = "<p style='text-align:center;padding:20px;'>Error al cargar cursos. Reintentando...</p>"; }
+            } catch (e) { console.error(e); }
             overlay.style.display = 'none';
         }
         function renderPagi() {
