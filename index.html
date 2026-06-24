@@ -114,7 +114,7 @@
                     grid.innerHTML += `<a class="card" href="${c.url}" target="_blank"><div class="c-img"><img class="main" src="${img}"><div class="c-logo"><img src="${logo}"></div></div><div class="c-body"><h3>${c.titulo}</h3><p class="c-desc">${d || 'Certificación oficial.'}</p><div class="c-plat">${c.plataforma}</div><div class="btn-go">Ir al Curso</div></div></a>`;
                 });
                 renderPagi();
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error(e); grid.innerHTML = "<p style='text-align:center;padding:20px;'>Error al cargar cursos. Reintentando...</p>"; }
             overlay.style.display = 'none';
         }
         function renderPagi() {
